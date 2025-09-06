@@ -4,6 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": ".",
@@ -11,7 +13,8 @@
       "@pkg/ui/*": ["packages/ui/src/*"],
       "@pkg/schemas/*": ["packages/schemas/src/*"],
       "@pkg/types/*": ["packages/types/src/*"],
-      "@pkg/db/*": ["packages/db/src/*"]
+      "@pkg/db/*": ["packages/db/src/*"],
+      "@pkg/logger/*": ["packages/logger/src/*"]
     }
   }
 }

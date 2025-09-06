@@ -10,6 +10,10 @@ pnpm-lock.yaml
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# Turborepo cache
+.turbo
+
+
 # Runtime data
 pids
 *.pid
