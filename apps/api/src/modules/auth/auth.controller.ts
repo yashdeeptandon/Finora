@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { SignInSchema, SignUpSchema } from '@pkg/schemas';
 import { authService } from './auth.service.js';
+import { successResponse } from '../../utils/response.js';
+
+export const getCsrf = (req: Request, res: Response) => {
+  successResponse(res, { csrfToken: req.csrfToken() });
+};
 
 export const signUp = async (req: Request, res: Response) => {
   try {

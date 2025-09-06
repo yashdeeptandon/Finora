@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { getRequestId } from '@pkg/logger';
+import { Response } from "express";
+import { getRequestId } from "@pkg/logger";
 
 interface ResponseShape<T> {
   success: boolean;
@@ -15,7 +15,11 @@ interface ResponseShape<T> {
   };
 }
 
-export function successResponse<T>(res: Response, data: T, statusCode = 200) {
+export function successResponse<T>(
+  res: Response,
+  data: T,
+  statusCode = 200
+) {
   const response: ResponseShape<T> = {
     success: true,
     data,
@@ -25,15 +29,15 @@ export function successResponse<T>(res: Response, data: T, statusCode = 200) {
       timestamp: new Date().toISOString(),
     },
   };
-  res.status(statusCode).json(response);
+  return res.status(statusCode).json(response);
 }
 
 export function errorResponse(
   res: Response,
   message: string,
-  code = 'INTERNAL_SERVER_ERROR',
+  code = "INTERNAL_SERVER_ERROR",
   details: any = null,
-  statusCode = 500,
+  statusCode = 500
 ) {
   const response: ResponseShape<null> = {
     success: false,
@@ -48,5 +52,14 @@ export function errorResponse(
       timestamp: new Date().toISOString(),
     },
   };
-  res.status(statusCode).json(response);
+  return res.status(statusCode).json(response);
+}
+
+// 404 helper
+export function notFoundResponse(
+  res: Response,
+  message = "The requested resource was not found.",
+  code = "ROUTE_NOT_FOUND"
+) {
+  return errorResponse(res, message, code, null, 404);
 }
