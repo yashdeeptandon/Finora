@@ -8,9 +8,10 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ui/*": ["packages/ui/src/*"],
-      "@schemas/*": ["packages/schemas/src/*"],
-      "@types/*": ["packages/types/src/*"]
+      "@pkg/ui/*": ["packages/ui/src/*"],
+      "@pkg/schemas/*": ["packages/schemas/src/*"],
+      "@pkg/types/*": ["packages/types/src/*"],
+      "@pkg/db/*": ["packages/db/src/*"]
     }
   }
 }
