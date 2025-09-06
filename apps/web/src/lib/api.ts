@@ -1,65 +1,51 @@
+// frontend/api.ts
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
-// A simple in-memory store for the CSRF token
-let csrfToken: string | null = null;
-
-async function getCsrfToken(): Promise<string> {
-  if (csrfToken) {
-    return csrfToken;
-  }
-  const res = await fetch(`${API_URL}/auth/csrf`);
-  if (!res.ok) {
-    throw new Error("Failed to fetch CSRF token");
-  }
-  const { data } = await res.json();
-  if (!data.csrfToken) {
-    throw new Error("CSRF token not found in response");
-  }
-  csrfToken = data.csrfToken;
-  return csrfToken as string;
+interface ApiResponse<T> {
+  success: boolean;
+  data: T | null;
+  error: { code: string; message: string; details?: object } | null;
+  meta: { requestId?: string; timestamp: string };
 }
 
-async function request<T>(
-  method: string,
-  endpoint: string,
-  data?: unknown
-): Promise<T> {
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+let csrfToken: string | null = null;
+
+async function getCsrfToken(forceRefresh = false): Promise<string> {
+  if (csrfToken && !forceRefresh) return csrfToken;
+
+  const res = await fetch(`${API_URL}/auth/csrf`, { credentials: "include" });
+  if (!res.ok) throw new Error("Failed to fetch CSRF token");
+
+  const { data }: ApiResponse<{ csrfToken: string }> = await res.json();
+  if (!data?.csrfToken) throw new Error("No CSRF token in response");
+
+  csrfToken = data.csrfToken; // 👈 this is the SAME token stored in cookie
+  return csrfToken;
+}
+
+async function request<T>(method: string, endpoint: string, bodyData?: unknown): Promise<T> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
 
   if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
     const token = await getCsrfToken();
-    headers["x-csrf-token"] = token;
+    headers["x-csrf-token"] = token; // 👈 matches cookie value
   }
 
   const res = await fetch(`${API_URL}${endpoint}`, {
     method,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
+    body: bodyData ? JSON.stringify(bodyData) : undefined,
     credentials: "include",
   });
 
-  if (!res.ok) {
-    const errorData = await res.json();
-    if (res.status === 401) {
-      // Redirect to sign-in on the client-side
-      if (typeof window !== "undefined") {
-        window.location.href = "/auth/sign-in";
-      }
-    }
-    throw new Error(errorData.error.message || "API request failed");
-  }
-
-  const responseData = await res.json();
-  return responseData.data;
+  const json: ApiResponse<T> = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.error?.message || "API request failed");
+  return json.data as T;
 }
 
 export const api = {
   get: <T>(endpoint: string) => request<T>("GET", endpoint),
-  post: <T>(endpoint: string, data: unknown) =>
-    request<T>("POST", endpoint, data),
-  patch: <T>(endpoint: string, data: unknown) =>
-    request<T>("PATCH", endpoint, data),
+  post: <T>(endpoint: string, data: unknown) => request<T>("POST", endpoint, data),
+  patch: <T>(endpoint: string, data: unknown) => request<T>("PATCH", endpoint, data),
   delete: <T>(endpoint: string) => request<T>("DELETE", endpoint),
 };
