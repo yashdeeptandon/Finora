@@ -1,6 +1,7 @@
 {
   "name": "finora",
   "private": true,
+  "packageManager": "pnpm@9.1.0",
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
