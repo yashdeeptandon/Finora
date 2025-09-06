@@ -9,6 +9,7 @@
     "lint": "turbo run lint"
   },
   "devDependencies": {
+    "tailwindcss": "^4.1.13",
     "turbo": "^2.0.0"
   }
 }
